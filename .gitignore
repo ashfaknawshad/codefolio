@@ -1,0 +1,21 @@
+# Python virtual environment
+venv/
+__pycache__/
+*.pyc
+
+# Node.js dependencies
+node_modules/
+
+# Build output folders
+dist/
+
+# IDE / OS generated files
+.vscode/
+.idea/
+.DS_Store
+
+# Log files
+*.log
+
+# WeasyPrint generated files (just in case)
+*.pdf

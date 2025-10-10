@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user_details.name }}'s Resume</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container { max-width: 800px; margin: 40px auto; padding: 20px; }
+        h1, h2, h3 { color: #2c3e50; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; }
+        h1 { text-align: center; border: none; }
+        .contact-info { text-align: center; margin-bottom: 30px; }
+        .contact-info a { color: #3498db; text-decoration: none; margin: 0 10px; }
+        .section { margin-bottom: 30px; }
+        .project { margin-bottom: 20px; }
+        .project-header { display: flex; justify-content: space-between; align-items: baseline; }
+        .project p { margin-top: 5px; }
+        strong { color: #555; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ user_details.name }}</h1>
+        <div class="contact-info">
+            <span>{{ user_details.email }}</span> | 
+            <a href="{{ user_details.linkedin }}">LinkedIn</a> | 
+            <a href="https://github.com/{{ user_details.github_username }}">GitHub</a>
+        </div>
+
+        <div class="section">
+            <h2>About Me</h2>
+            <p>{{ user_details.about }}</p>
+        </div>
+
+        <div class="section">
+            <h2>Skills</h2>
+            <p>{{ user_details.skills | join(', ') }}</p>
+        </div>
+
+        <div class="section">
+            <h2>Projects</h2>
+            {% for project in projects %}
+            <div class="project">
+                <div class="project-header">
+                    <h3>{{ project.title }}</h3>
+                    <span><strong>⭐ {{ project.stars }}</strong></span>
+                </div>
+                <p>{{ project.description }}</p>
+                <p><strong>Languages:</strong> {{ project.languages | join(', ') }} | <a href="{{ project.repo_link }}">View on GitHub</a></p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

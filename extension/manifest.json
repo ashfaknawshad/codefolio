@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "GitHub Resume Sync",
+  "version": "1.0",
+  "description": "Automatically update your resume with your GitHub projects.",
+  "action": {
+    "default_popup": "index.html"
+  },
+  "permissions": [
+    "storage"
+  ]
+}

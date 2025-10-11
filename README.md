@@ -55,40 +55,40 @@ Follow these instructions to set up and run the project on your local machine.
 First, let's get the Python server running.
 
 
-# 1. Navigate to the backend directory
+1. Navigate to the backend directory
 cd backend
 
-# 2. Create and activate a Python virtual environment
+2. Create and activate a Python virtual environment
 python -m venv venv
-# On Windows:
+On Windows:
 .\venv\Scripts\activate
-# On macOS/Linux:
+On macOS/Linux:
 source venv/bin/activate
 
-# 3. Install the required packages
+3. Install the required packages
 pip install -r requirements.txt
 
-# 4. Start the server
-# (Run this from the project's root 'codefolio' directory)
+4. Start the server
+(Run this from the project's root 'codefolio' directory)
 cd ..
 uvicorn backend.main:app --reload
 
 The backend server will now be running at http://127.0.0.1:8000.
 
-2. Frontend Setup
+### 2. Frontend Setup
 Next, let's build and load the browser extension.
-code
-Bash
-# 1. Navigate to the extension directory in a new terminal
+
+1. Navigate to the extension directory in a new terminal
 cd extension
 
-# 2. Install npm dependencies
+2. Install npm dependencies
 npm install
 
-# 3. Build the extension files
+3. Build the extension files
 npm run build
 The build command will create a dist folder inside the extension directory. This dist folder contains the complete, ready-to-load extension.
-3. Loading the Extension in Chrome
+
+### 3. Loading the Extension in Chrome
 Open your Chrome browser and navigate to the extensions page by typing chrome://extensions in the address bar.
 In the top-right corner, enable the "Developer mode" toggle.
 Three new buttons will appear. Click on "Load unpacked".
@@ -96,13 +96,18 @@ A file selection dialog will open. Navigate to your project and select the codef
 Click "Select Folder".
 The Codefolio icon will now appear in your browser's toolbar (you may need to click the puzzle-piece icon to see it). You're all set to use the extension
 
-📄 How to Use
+### 📄 How to Use
 Open the Options Page: Right-click the Codefolio icon in your toolbar and select "Options".
+
 Add Your Details: Fill in your personal information (name, email, skills, etc.) and click "Save".
+
 Connect GitHub: Click the Codefolio icon to open the popup. Paste your GitHub Personal Access Token and click "Connect".
+
 Fetch & Select: Click "Fetch Projects" to sync your repositories. Click on the cards to select the ones you want to include.
+
 Generate! Click "Generate Resume" to download your professional, up-to-date PDF.
-🤝 Contributing
+
+### 🤝 Contributing
 Contributions are welcome! Please feel free to open an issue or submit a pull request. Check out the CONTRIBUTING.md for more information.
-📜 License
+### 📜 License
 This project is licensed under the MIT License. See the LICENSE file for details.

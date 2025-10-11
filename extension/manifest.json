@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "GitHub Resume Sync",
+  "name": "codefolio",
   "version": "1.0",
   "description": "Automatically update your resume with your GitHub projects.",
   "action": {
@@ -8,5 +8,6 @@
   },
   "permissions": [
     "storage"
-  ]
+  ],
+  "options_page": "options.html" 
 }

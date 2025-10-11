@@ -20,6 +20,7 @@ interface UserDetails {
   github_username: string;
   about: string;
   skills: string; // We'll store skills as a comma-separated string
+  job_title: string;
 }
 
 const Options = () => {
@@ -30,6 +31,7 @@ const Options = () => {
     github_username: '',
     about: '',
     skills: '',
+    job_title: '',
   });
 
   // Load existing user details from storage when the page opens
@@ -81,6 +83,10 @@ const Options = () => {
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
                 <Input id="name" name="name" value={userDetails.name} onChange={handleChange} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="job_title">Job Title</Label>
+                <Input id="job_title" name="job_title" value={userDetails.job_title} onChange={handleChange} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>

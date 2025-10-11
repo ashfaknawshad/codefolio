@@ -2,77 +2,65 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ user_details.name }}'s Resume</title>
+    <title>{{ user_details.name }} - Curriculum Vitae</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Lora:wght@700&family=Inter:wght@400;500;700&display=swap');
 
         :root {
             --primary-text: #111827;
-            --secondary-text: #374151;
-            --accent-color: #2563EB;
-            --border-color: #E5E7EB;
+            --secondary-text: #4B5563;
+            --border-color: #D1D5DB;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            font-size: 10.5pt; /* Slightly smaller for a modern feel */
-            line-height: 1.65;
+            font-size: 10pt;
+            line-height: 1.5;
             color: var(--primary-text);
             background-color: #FFFFFF;
             margin: 0;
-            padding: 40px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
+            padding: 40px 50px;
         }
 
         .header {
-            text-align: left;
+            text-align: center;
+            border-bottom: 2px solid var(--primary-text);
             padding-bottom: 20px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 30px;
         }
 
         h1 {
-            font-size: 26pt;
+            font-family: 'Lora', serif;
+            font-size: 24pt;
             font-weight: 700;
             margin: 0 0 5px 0;
-            color: var(--primary-text);
         }
 
-        .header .job-title {
-            font-size: 14pt;
-            font-weight: 500;
-            margin-bottom: 15px;
+        .header p {
+            font-size: 11pt;
+            margin: 2px 0;
             color: var(--secondary-text);
         }
 
         .header .contact-info {
-            font-size: 10pt;
-            color: var(--secondary-text);
+            font-size: 9pt;
+            margin-top: 10px;
         }
-        .header .contact-info a {
-            color: var(--accent-color);
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .header .contact-info a:hover { text-decoration: underline; }
-        .header .contact-info span { margin: 0 8px; } /* Separator */
 
         h2 {
-            font-size: 13pt;
+            font-family: 'Lora', serif;
+            font-size: 14pt;
             font-weight: 700;
-            color: var(--accent-color);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            color: var(--primary-text);
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 5px;
+            padding-bottom: 6px;
             margin-top: 25px;
             margin-bottom: 15px;
         }
 
         .section-item {
-            margin-bottom: 18px;
+            margin-bottom: 15px;
+            break-inside: avoid; /* Helps prevent items from breaking across pages */
         }
 
         .item-header {
@@ -84,45 +72,44 @@
 
         .item-header .primary {
             font-weight: 700;
-            font-size: 11.5pt;
+            font-size: 11pt;
         }
 
         .item-header .timeline {
-            font-size: 9.5pt;
+            font-style: italic;
+            font-size: 9pt;
             color: var(--secondary-text);
-            font-weight: 500;
         }
 
         .item-secondary {
             font-weight: 500;
             margin-bottom: 5px;
-            color: var(--secondary-text);
         }
 
         .item-description {
-            font-size: 10.5pt;
+            font-size: 10pt;
             color: var(--secondary-text);
         }
-
+        
+        a { color: var(--primary-text); text-decoration: underline; }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>{{ user_details.name }}</h1>
-        <p class="job-title">{{ user_details.job_title }}</p>
+        <p>{{ user_details.job_title }}</p>
         <div class="contact-info">
-            <a href="mailto:{{ user_details.email }}">{{ user_details.email }}</a>
-            <span>|</span>
-            <a href="{{ user_details.linkedin }}" target="_blank">LinkedIn</a>
-            <span>|</span>
-            <a href="https://github.com/{{ user_details.github_username }}" target="_blank">GitHub</a>
+            <span>{{ user_details.email }}</span> |
+            <a href="{{ user_details.linkedin }}">LinkedIn</a> |
+            <a href="https://github.com/{{ user_details.github_username }}">GitHub</a>
         </div>
     </div>
 
-    {% for section in sections %}
+     {% for section in sections %}
         <div class="section">
             <h2>{{ section.title }}</h2>
             
+    
             {% for entry in section['items'] %}
                 <div class="section-item">
                     <div class="item-header">
@@ -139,6 +126,7 @@
                     {% endif %}
                 </div>
             {% endfor %}
+
         </div>
     {% endfor %}
 </body>

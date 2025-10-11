@@ -11,122 +11,154 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Toaster} from "@/components/ui/sonner";
 import { toast } from "sonner";
+import { ThemeProvider } from './components/theme-provider';
+import { EditSectionDialog } from './components/EditSectionDialog';
 
-// Define an interface for our user details for type safety
-interface UserDetails {
-  name: string;
-  email: string;
-  linkedin: string;
-  github_username: string;
-  about: string;
-  skills: string; // We'll store skills as a comma-separated string
-  job_title: string;
-}
+import { UserDetails, ResumeSection } from './types/resume';
+import { DragDropContext, Droppable, Draggable, OnDragEndResponder } from '@hello-pangea/dnd';
 
 const Options = () => {
   const [userDetails, setUserDetails] = useState<UserDetails>({
     name: '',
+    job_title: '',
     email: '',
     linkedin: '',
     github_username: '',
-    about: '',
-    skills: '',
-    job_title: '',
   });
 
-  // Load existing user details from storage when the page opens
+  const [sections, setSections] = useState<ResumeSection[]>([]);
+  const [editingSection, setEditingSection] = useState<ResumeSection | null>(null);
+
+  // Load data from storage on component mount
   useEffect(() => {
-    chrome.storage.sync.get(['userDetails'], (result) => {
-      if (result.userDetails) {
-        setUserDetails(result.userDetails);
+    chrome.storage.sync.get(['userDetails', 'sections'], (result) => {
+      if (result.userDetails) setUserDetails(result.userDetails);
+      if (result.sections && result.sections.length > 0) {
+        setSections(result.sections);
+      } else {
+        setSections([
+          { id: `sec_${Date.now()}_1`, title: 'Educational Qualifications', items: [] },
+          { id: `sec_${Date.now()}_2`, title: 'Employment History', items: [] },
+          { id: `sec_${Date.now()}_3`, title: 'Projects', items: [] },
+        ]);
       }
     });
   }, []);
 
-  // Handle changes to any input field
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setUserDetails(prevDetails => ({
-      ...prevDetails,
-      [name]: value,
-    }));
+  // --- HANDLERS ---
+
+  const handleDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUserDetails(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // Save the details to chrome.storage
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    chrome.storage.sync.set({ userDetails }, () => {
-      // --- This is the new, simpler API for Sonner ---
-      toast("Success!", {
-        description: "Your details have been saved.",
-        action: {
-          label: "Dismiss",
-          onClick: () => console.log("Toast dismissed"),
-        },
-      });
+    chrome.storage.sync.set({ userDetails, sections }, () => {
+      toast("Success!", { description: "Your settings have been saved." });
     });
+  };
+  
+  const handleAddSection = () => {
+    const title = prompt("Enter the title for the new section:");
+    if (title) {
+      const newSection: ResumeSection = { id: `sec_${Date.now()}`, title, items: [] };
+      setSections(prev => [...prev, newSection]);
+    }
+  };
+
+  const handleDeleteSection = (sectionId: string) => {
+    if (confirm("Are you sure you want to delete this section?")) {
+      setSections(prev => prev.filter(s => s.id !== sectionId));
+    }
+  };
+
+  const handleSaveSection = (updatedSection: ResumeSection) => {
+    setSections(prev => prev.map(s => s.id === updatedSection.id ? updatedSection : s));
+  };
+  
+  const onDragEnd: OnDragEndResponder = (result) => {
+    if (!result.destination) return;
+    const items = Array.from(sections);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    setSections(items);
   };
 
   return (
     <div className="min-h-screen bg-secondary p-8">
-      <Card className="max-w-2xl mx-auto">
+      <Card className="max-w-3xl mx-auto">
         <CardHeader>
-          <CardTitle>Your Details</CardTitle>
-          <CardDescription>
-            This information will be used to generate your resume.
-          </CardDescription>
+          <CardTitle>Codefolio Settings</CardTitle>
+          <CardDescription>Manage the content and appearance of your generated resume.</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSave} className="space-y-4">
-            {/* The form JSX is exactly the same as before */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input id="name" name="name" value={userDetails.name} onChange={handleChange} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="job_title">Job Title</Label>
-                <Input id="job_title" name="job_title" value={userDetails.job_title} onChange={handleChange} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input id="email" name="email" type="email" value={userDetails.email} onChange={handleChange} />
+          <form onSubmit={handleSave} className="space-y-8">
+            {/* --- Part 1: Basic Details Form --- */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium border-b pb-2">Personal Information</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label>Full Name</Label><Input name="name" value={userDetails.name} onChange={handleDetailsChange} /></div>
+                <div className="space-y-2"><Label>Job Title / Role</Label><Input name="job_title" value={userDetails.job_title} onChange={handleDetailsChange} /></div>
+                <div className="space-y-2"><Label>Email Address</Label><Input name="email" type="email" value={userDetails.email} onChange={handleDetailsChange} /></div>
+                <div className="space-y-2"><Label>LinkedIn Profile URL</Label><Input name="linkedin" value={userDetails.linkedin} onChange={handleDetailsChange} /></div>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="linkedin">LinkedIn Profile URL</Label>
-                <Input id="linkedin" name="linkedin" value={userDetails.linkedin} onChange={handleChange} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="github_username">GitHub Username</Label>
-                <Input id="github_username" name="github_username" value={userDetails.github_username} onChange={handleChange} />
-              </div>
+            
+            {/* --- Part 2: Dynamic Sections List (with Drag-and-Drop) --- */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between"><h3 className="text-lg font-medium">Resume Sections</h3><p className="text-sm text-muted-foreground">Drag to re-order</p></div>
+              <DragDropContext onDragEnd={onDragEnd}>
+                <Droppable droppableId="sections">
+                  {(provided) => (
+                    <div className="space-y-3 rounded-lg border p-4" {...provided.droppableProps} ref={provided.innerRef}>
+                      {sections.filter(s => s.title !== 'Projects').map((section, index) => (
+                        <Draggable key={section.id} draggableId={section.id} index={index}>
+                          {(provided) => (
+                            <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                              <Card>
+                                <CardContent className="p-4 flex items-center justify-between">
+                                  <p className="font-semibold">{section.title}</p>
+                                  <div className="flex items-center space-x-2">
+                                    <Button type="button" variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setEditingSection(section); }}>Edit</Button>
+                                    <Button type="button" variant="destructive" size="sm" onClick={(e) => { e.stopPropagation(); handleDeleteSection(section.id); }}>Delete</Button>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+              <Button type="button" variant="outline" className="w-full" onClick={(e) => { e.stopPropagation(); handleAddSection(); }}>+ Add New Section</Button>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="about">About You</Label>
-              <Textarea id="about" name="about" value={userDetails.about} onChange={handleChange} rows={4} />
+
+            <div className="space-y-6 border-t pt-6">
+      
+              <Button type="submit" className="w-full bg-[#238636] text-white hover:bg-[#2ea043]">Save All Settings</Button>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="skills">Skills (comma-separated)</Label>
-              <Input id="skills" name="skills" placeholder="e.g., Python, React, FastAPI" value={userDetails.skills} onChange={handleChange} />
-            </div>
-            <Button type="submit" className="w-full">Save Details</Button>
           </form>
         </CardContent>
       </Card>
-      <Toaster /> {/* <-- This component is now imported from sonner */}
+
+      <EditSectionDialog section={editingSection} onClose={() => setEditingSection(null)} onSave={handleSaveSection} />
+      <Toaster />
     </div>
   );
 };
 
-// --- This rendering part is the same ---
+// --- RENDER ---
 const rootElement = document.getElementById('root');
 if (rootElement) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <React.StrictMode>
-      <Options />
+      <ThemeProvider defaultTheme="dark" storageKey="codefolio-theme">
+        <Options />
+      </ThemeProvider>
     </React.StrictMode>
   );
 }

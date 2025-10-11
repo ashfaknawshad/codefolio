@@ -20,10 +20,15 @@ Never let your resume fall out of date again. Connect your GitHub account, selec
 
 ## ✨ Core Features
 
-*   **Seamless GitHub Integration:** Authenticates with your GitHub account to fetch all your public and private repositories.
-*   **Instant PDF Generation:** One-click generation of a clean, professional resume using modern HTML templates.
+
+*   **Dynamic CV Builder:** Don't just list projects—build a complete, professional CV. Create and re-order custom sections like "Education," "Work Experience," and "Publications."
+*   **Seamless GitHub Integration:** Authenticates with your GitHub account to fetch all your repositories.
+*   **Modern Project Management:** A slick, tag-based UI in the popup to easily add or remove GitHub projects from your resume. Your selections are saved automatically.
+*   **Multiple Professional Templates:** Choose between a sleek, single-column "Modern" template or a denser, traditional "Academic" CV on the fly.
+*   **Instant PDF Generation:** One-click generation of a polished, high-quality resume PDF.
+*   **Full Customization:** A dedicated options page to manage your personal details and all resume content.
+*   **Dark Mode UI:** A beautiful, GitHub-inspired dark theme for both the popup and options page.
 *   **Project Selection:** Easily select which repositories you want to feature on your resume.
-*   **Customizable Details:** A dedicated options page to manage your personal information, skills, and professional summary.
 *   **Secure & Private:** Your GitHub token and personal details are stored securely in your browser's local storage and never leave your machine.
 *   **Fully Open-Source:** No paid dependencies, no tracking. Built with a modern, transparent tech stack.
 

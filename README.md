@@ -59,21 +59,27 @@ First, let's get the Python server running.
 cd backend
 
 2. Create and activate a Python virtual environment
-python -m venv venv
+
+`python -m venv venv`
 On Windows:
-.\venv\Scripts\activate
+
+`.\venv\Scripts\activate`
+
 On macOS/Linux:
-source venv/bin/activate
+
+`source venv/bin/activate`
 
 3. Install the required packages
-pip install -r requirements.txt
+
+`pip install -r requirements.txt`
 
 4. Start the server
 (Run this from the project's root 'codefolio' directory)
-cd ..
-uvicorn backend.main:app --reload
 
-The backend server will now be running at http://127.0.0.1:8000.
+`cd ..
+uvicorn backend.main:app --reload`
+
+### The backend server will now be running at http://127.0.0.1:8000.
 
 ### 2. Frontend Setup
 Next, let's build and load the browser extension.

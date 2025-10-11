@@ -54,7 +54,7 @@ Follow these instructions to set up and run the project on your local machine.
 
 First, let's get the Python server running.
 
-```bash
+
 # 1. Navigate to the backend directory
 cd backend
 
@@ -74,6 +74,7 @@ cd ..
 uvicorn backend.main:app --reload
 
 The backend server will now be running at http://127.0.0.1:8000.
+
 2. Frontend Setup
 Next, let's build and load the browser extension.
 code
@@ -86,14 +87,15 @@ npm install
 
 # 3. Build the extension files
 npm run build
-
-# 4. A 'dist' folder will be created inside the 'extension' directory.
+The build command will create a dist folder inside the extension directory. This dist folder contains the complete, ready-to-load extension.
 3. Loading the Extension in Chrome
-Open Chrome and navigate to chrome://extensions.
-Enable "Developer mode" in the top-right corner.
-Click "Load unpacked".
-Select the codefolio/extension/dist folder.
-The Codefolio icon will appear in your browser toolbar!
+Open your Chrome browser and navigate to the extensions page by typing chrome://extensions in the address bar.
+In the top-right corner, enable the "Developer mode" toggle.
+Three new buttons will appear. Click on "Load unpacked".
+A file selection dialog will open. Navigate to your project and select the codefolio/extension/dist folder.
+Click "Select Folder".
+The Codefolio icon will now appear in your browser's toolbar (you may need to click the puzzle-piece icon to see it). You're all set to use the extension
+
 📄 How to Use
 Open the Options Page: Right-click the Codefolio icon in your toolbar and select "Options".
 Add Your Details: Fill in your personal information (name, email, skills, etc.) and click "Save".

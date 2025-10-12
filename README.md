@@ -12,7 +12,7 @@ Never let your resume fall out of date again. Connect your GitHub account, selec
 
 ---
 
-[![Watch the demo](https://img.youtube.com/vi/y2BI5gIUDBY/0.jpg)](https://youtu.be/y2BI5gIUDBY)
+[Watch the demo](https://youtu.be/y2BI5gIUDBY)
 
 
 

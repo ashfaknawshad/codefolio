@@ -12,9 +12,10 @@ Never let your resume fall out of date again. Connect your GitHub account, selec
 
 ---
 
-*(Here is where you would insert a screenshot or GIF of the extension in action. A GIF showing the flow from login -> fetching projects -> generating a PDF is highly recommended!)*
+[![Watch the demo](https://img.youtube.com/vi/y2BI5gIUDBY/0.jpg)](https://youtu.be/y2BI5gIUDBY)
 
-![Codefolio Screenshot](docs/screenshots/codefolio-demo.png)
+
+
 
 ---
 

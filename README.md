@@ -60,66 +60,130 @@ Follow these instructions to set up and run the project on your local machine.
 
 First, let's get the Python server running.
 
+#### Step 1: Install GTK3 Runtime (Windows Only)
 
-1. Navigate to the backend directory
-cd backend
+WeasyPrint requires GTK3 libraries for PDF generation on Windows.
 
-2. Create and activate a Python virtual environment
+**Download and install GTK3:**
+- Download from: [GTK3 Runtime for Windows](https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases/download/2022-01-04/gtk3-runtime-3.24.31-2022-01-04-ts-win64.exe)
+- Run the installer with default settings
+- Or use PowerShell to install automatically:
+```powershell
+$gtkUrl = "https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases/download/2022-01-04/gtk3-runtime-3.24.31-2022-01-04-ts-win64.exe"
+$outFile = "$env:TEMP\gtk3-installer.exe"
+Invoke-WebRequest -Uri $gtkUrl -OutFile $outFile
+Start-Process -FilePath $outFile -ArgumentList "/S" -Wait
+```
 
-`python -m venv venv`
-On Windows:
+**Note:** macOS and Linux users can skip this step as GTK3 is typically pre-installed or available through package managers.
 
-`.\venv\Scripts\activate`
+#### Step 2: Install Python Dependencies
 
-On macOS/Linux:
+1. **Navigate to the project directory:**
+   ```bash
+   cd codefolio
+   ```
 
-`source venv/bin/activate`
+2. **Create and activate a Python virtual environment (optional but recommended):**
+   ```bash
+   python -m venv venv
+   ```
+   
+   On Windows:
+   ```powershell
+   .\venv\Scripts\activate
+   ```
+   
+   On macOS/Linux:
+   ```bash
+   source venv/bin/activate
+   ```
 
-3. Install the required packages
+3. **Install the required packages:**
+   ```bash
+   pip install -r backend/requirements.txt
+   ```
 
-`pip install -r requirements.txt`
+#### Step 3: Start the Backend Server
 
-4. Start the server
-(Run this from the project's root 'codefolio' directory)
+**On Windows (with GTK3 in PATH):**
+```powershell
+$env:Path += ";C:\Program Files\GTK3-Runtime Win64\bin"
+uvicorn backend.main:app --host 127.0.0.1 --port 8000
+```
 
-`cd ..
-uvicorn backend.main:app --reload`
+**On macOS/Linux:**
+```bash
+uvicorn backend.main:app --host 127.0.0.1 --port 8000
+```
 
-### The backend server will now be running at http://127.0.0.1:8000.
+The backend server will now be running at **http://127.0.0.1:8000**.
 
-### 2. Frontend Setup
+---### 2. Frontend Setup
+
 Next, let's build and load the browser extension.
 
-1. Navigate to the extension directory in a new terminal
-cd extension
+1. **Navigate to the extension directory in a new terminal:**
+   ```bash
+   cd extension
+   ```
 
-2. Install npm dependencies
-npm install
+2. **Install npm dependencies:**
+   ```bash
+   npm install
+   ```
 
-3. Build the extension files
-npm run build
-The build command will create a dist folder inside the extension directory. This dist folder contains the complete, ready-to-load extension.
+3. **Build the extension files:**
+   ```bash
+   npm run build
+   ```
+   
+   The build command will create a `dist` folder inside the extension directory. This dist folder contains the complete, ready-to-load extension.
+
+---
 
 ### 3. Loading the Extension in Chrome
-Open your Chrome browser and navigate to the extensions page by typing chrome://extensions in the address bar.
-In the top-right corner, enable the "Developer mode" toggle.
-Three new buttons will appear. Click on "Load unpacked".
-A file selection dialog will open. Navigate to your project and select the codefolio/extension/dist folder.
-Click "Select Folder".
-The Codefolio icon will now appear in your browser's toolbar (you may need to click the puzzle-piece icon to see it). You're all set to use the extension
 
-### 📄 How to Use
-Open the Options Page: Right-click the Codefolio icon in your toolbar and select "Options".
+1. Open your Chrome browser and navigate to **`chrome://extensions`** in the address bar.
+2. In the top-right corner, enable the **"Developer mode"** toggle.
+3. Three new buttons will appear. Click on **"Load unpacked"**.
+4. A file selection dialog will open. Navigate to your project and select the **`codefolio/extension/dist`** folder.
+5. Click **"Select Folder"**.
 
-Add Your Details: Fill in your personal information (name, email, skills, etc.) and click "Save".
+The Codefolio icon will now appear in your browser's toolbar (you may need to click the puzzle-piece icon to see it). You're all set to use the extension!
 
-Connect GitHub: Click the Codefolio icon to open the popup. Paste your GitHub Personal Access Token and click "Connect".
+---
 
-Fetch & Select: Click "Fetch Projects" to sync your repositories. Click on the cards to select the ones you want to include.
+## 📄 How to Use
 
-Generate! Click "Generate Resume" to download your professional, up-to-date PDF.
+1. **Get GitHub Token:**
+   - Go to [GitHub Settings > Tokens](https://github.com/settings/tokens/new)
+   - Create a new token (classic) with **`repo`** scope
+   - Copy the token (starts with `ghp_...`)
 
-### 🤝 Contributing
+2. **Connect GitHub:**
+   - Click the Codefolio extension icon
+   - Paste your GitHub token
+   - Click "Connect"
+
+3. **Setup Your Details:**
+   - Click "Options" in the extension popup
+   - Fill in your personal information (name, job title, email, LinkedIn, etc.)
+   - Add/edit resume sections (Education, Employment History, etc.)
+   - Click "Save All Settings"
+
+4. **Select Projects:**
+   - Click the extension icon to open the popup
+   - Click "Refresh Repo List" to fetch your GitHub repositories
+   - Use the dropdown to search and select projects to include
+   - Click the X on any badge to remove a project
+
+5. **Generate Resume:**
+   - Select a template (Modern or Academic)
+   - Click "Generate Resume"
+   - Your professional PDF will download automatically!
+
+---### 🤝 Contributing
 Contributions are welcome! Please feel free to open an issue or submit a pull request. Check out the CONTRIBUTING.md for more information.
 ### 📜 License
 This project is licensed under the MIT License. See the LICENSE file for details.

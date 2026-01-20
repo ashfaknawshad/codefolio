@@ -1,11 +1,12 @@
 # backend/routes/resume.py
 
 from fastapi import APIRouter, Body
-from fastapi.responses import Response
+from fastapi.responses import Response, HTMLResponse
 from jinja2 import Environment, FileSystemLoader
-from weasyprint import HTML
 from pydantic import BaseModel
 from typing import List, Dict, Any
+from weasyprint import HTML, CSS
+from io import BytesIO
 
 # Define a Pydantic model to validate the incoming data structure
 class ResumeData(BaseModel):
@@ -35,6 +36,15 @@ async def generate_resume(data: ResumeData): # <-- Use our Pydantic model for va
     # Pass the dictionary to the template, not the Pydantic model
     html_content = template.render(resume_dict)
     
-    pdf_bytes = HTML(string=html_content).write_pdf()
-
-    return Response(content=pdf_bytes, media_type='application/pdf')
+    # Generate PDF using WeasyPrint
+    try:
+        pdf_bytes = HTML(string=html_content).write_pdf()
+        print(f"PDF generated successfully: {len(pdf_bytes)} bytes")
+        return Response(content=pdf_bytes, media_type='application/pdf')
+        
+    except Exception as e:
+        print(f"Exception during PDF generation: {e}")
+        import traceback
+        traceback.print_exc()
+        # Return HTML as fallback
+        return HTMLResponse(content=html_content)

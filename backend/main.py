@@ -13,15 +13,11 @@ app = FastAPI(
 
 # --- 2. DEFINE YOUR ORIGINS AND ADD THE MIDDLEWARE (ADD THIS ENTIRE BLOCK) ---
 
-
-origins = [
-    
-    "chrome-extension://pjhlpcjohlikmlkpjmenmkadnipemjkg",
-]
-
+# Allow all origins for local development
+# In production, you should specify exact extension IDs
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],  # Allow all origins for local development
     allow_credentials=True,
     allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
     allow_headers=["*"],  # Allows all headers

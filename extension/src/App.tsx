@@ -28,6 +28,7 @@ function App() {
   const [isFetching, setIsFetching] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState('resume_modern');
+  const [isEnhancing, setIsEnhancing] = useState(false);
 
 
   // --- Effects ---
@@ -96,6 +97,126 @@ function App() {
     } finally {
       setIsFetching(false);
     }
+  };
+
+  const handleEnhanceAndGenerateResume = async () => {
+    if (!githubToken) return;
+    
+    // Get DeepSeek API key and user details from storage
+    chrome.storage.sync.get(['deepseekApiKey', 'userDetails', 'sections'], async (result) => {
+      if (!result.deepseekApiKey) {
+        alert("Please add your DeepSeek API key in the Options page to use AI enhancement.");
+        return;
+      }
+      
+      if (!result.userDetails || !result.sections) {
+        alert("Please fill out your details on the options page first.");
+        return;
+      }
+      
+      if (savedProjectItems.length === 0) {
+        alert("Please add some projects first by selecting them from the dropdown.");
+        return;
+      }
+      
+      setIsEnhancing(true);
+      setIsGenerating(true);
+      try {
+        // Step 1: Extract the full project data from savedProjectItems
+        const selectedRepos = savedProjectItems
+          .map(item => fetchedProjects.find(p => p.id.toString() === item.id.replace('proj_', '')))
+          .filter(Boolean);
+        
+        console.log(`[1/2] Enhancing ${selectedRepos.length} repositories with AI...`);
+        
+        // Step 2: Call AI enhancement API
+        const enhanceResponse = await fetch(`${API_BASE_URL}/api/enhance_repos`, {
+          method: 'POST',
+          headers: { 
+            'Authorization': `token ${githubToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            repos: selectedRepos,
+            deepseek_api_key: result.deepseekApiKey
+          })
+        });
+        
+        if (!enhanceResponse.ok) {
+          const errorText = await enhanceResponse.text();
+          console.error('Enhancement error:', errorText);
+          throw new Error(`Enhancement failed: ${enhanceResponse.status} - ${errorText}`);
+        }
+        
+        const enhancedRepos = await enhanceResponse.json();
+        console.log(`✓ Successfully enhanced ${enhancedRepos.length} repositories`);
+        
+        // Step 3: Update project items with enhanced descriptions
+        const enhancedItems = savedProjectItems.map(item => {
+          const enhanced = enhancedRepos.find((r: any) => r.id.toString() === item.id.replace('proj_', ''));
+          if (enhanced && enhanced.description) {
+            return { ...item, description: enhanced.description };
+          }
+          return item;
+        });
+        
+        // Step 4: Update sections with enhanced projects
+        const updatedSections = result.sections.map((s: ResumeSection) =>
+          s.title === 'Projects' ? { ...s, items: enhancedItems } : s
+        );
+        
+        console.log(`[2/2] Generating resume with enhanced descriptions...`);
+        
+        // Step 5: Generate resume with enhanced descriptions
+        const resumeData = {
+          user_details: result.userDetails,
+          sections: updatedSections,
+          template: selectedTemplate || 'resume_modern',
+        };
+        
+        const resumeResponse = await fetch(`${API_BASE_URL}/api/generate_resume`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(resumeData),
+        });
+        
+        if (!resumeResponse.ok) {
+          throw new Error(`Resume generation failed: ${resumeResponse.status}`);
+        }
+        
+        // Step 6: Download the PDF
+        const pdfBlob = await resumeResponse.blob();
+        const url = window.URL.createObjectURL(pdfBlob);
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Codefolio-Resume-AI-Enhanced-${timestamp}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        
+        console.log(`✓ Resume generated successfully!`);
+        
+        // Step 7: Save enhanced items to storage for future use
+        chrome.storage.sync.set({ sections: updatedSections });
+        setSavedProjectItems(enhancedItems);
+        
+        // Also update fetchedProjects cache
+        const updatedFetchedProjects = fetchedProjects.map(proj => {
+          const enhanced = enhancedRepos.find((r: any) => r.id === proj.id);
+          return enhanced || proj;
+        });
+        setFetchedProjects(updatedFetchedProjects);
+        
+      } catch (error: any) {
+        console.error("Failed:", error);
+        alert(`Failed: ${error.message}\n\nCheck the browser console and backend terminal for details.`);
+      } finally {
+        setIsEnhancing(false);
+        setIsGenerating(false);
+      }
+    });
   };
   
   const handleAddProject = (projectToAdd: any) => {
@@ -238,8 +359,11 @@ function App() {
               </SelectContent>
             </Select>
           </div>
-        <Button className="w-full bg-[#238636] text-white hover:bg-[#2ea043]" onClick={handleGenerateResume} disabled={isGenerating}>
-          {isGenerating ? 'Generating...' : 'Generate Resume'}
+        <Button className="w-full bg-[#238636] text-white hover:bg-[#2ea043]" onClick={handleEnhanceAndGenerateResume} disabled={isEnhancing || isGenerating || savedProjectItems.length === 0}>
+          {(isEnhancing || isGenerating) ? '✨ Enhancing & Generating...' : '✨ AI Enhance & Generate Resume'}
+        </Button>
+        <Button className="w-full" onClick={handleGenerateResume} disabled={isGenerating} variant="outline">
+          {isGenerating ? 'Generating...' : 'Generate Resume (No AI)'}
         </Button>
       </div>
     </div>

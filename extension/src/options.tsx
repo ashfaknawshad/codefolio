@@ -28,11 +28,15 @@ const Options = () => {
 
   const [sections, setSections] = useState<ResumeSection[]>([]);
   const [editingSection, setEditingSection] = useState<ResumeSection | null>(null);
+  const [deepseekApiKey, setDeepseekApiKey] = useState('');
+  const [googleDocUrl, setGoogleDocUrl] = useState('');
+  const [isLoadingDoc, setIsLoadingDoc] = useState(false);
 
   // Load data from storage on component mount
   useEffect(() => {
-    chrome.storage.sync.get(['userDetails', 'sections'], (result) => {
+    chrome.storage.sync.get(['userDetails', 'sections', 'deepseekApiKey'], (result) => {
       if (result.userDetails) setUserDetails(result.userDetails);
+      if (result.deepseekApiKey) setDeepseekApiKey(result.deepseekApiKey);
       if (result.sections && result.sections.length > 0) {
         setSections(result.sections);
       } else {
@@ -53,9 +57,54 @@ const Options = () => {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    chrome.storage.sync.set({ userDetails, sections }, () => {
+    chrome.storage.sync.set({ userDetails, sections, deepseekApiKey }, () => {
       toast("Success!", { description: "Your settings have been saved." });
     });
+  };
+  
+  const handleLoadFromGoogleDoc = async () => {
+    if (!googleDocUrl.trim()) {
+      toast("Error", { description: "Please enter a Google Docs URL" });
+      return;
+    }
+    
+    setIsLoadingDoc(true);
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/parse_google_doc`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ doc_url: googleDocUrl })
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || 'Failed to parse document');
+      }
+      
+      const data = await response.json();
+      
+      // Merge user details
+      if (data.user_details) {
+        setUserDetails(prev => ({ ...prev, ...data.user_details }));
+      }
+      
+      // Merge sections (avoid duplicating Projects section)
+      if (data.sections) {
+        const existingProjectsSection = sections.find(s => s.title === 'Projects');
+        const newSections = data.sections.filter((s: any) => s.title !== 'Projects');
+        if (existingProjectsSection) {
+          setSections([...newSections, existingProjectsSection]);
+        } else {
+          setSections([...newSections, { id: `sec_${Date.now()}`, title: 'Projects', items: [] }]);
+        }
+      }
+      
+      toast("Success!", { description: "Data loaded from Google Docs. Don't forget to save!" });
+    } catch (error: any) {
+      toast("Error", { description: error.message });
+    } finally {
+      setIsLoadingDoc(false);
+    }
   };
   
   const handleAddSection = () => {
@@ -93,6 +142,50 @@ const Options = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSave} className="space-y-8">
+            {/* --- Optional: Load from Google Docs --- */}
+            <div className="space-y-4 bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+              <h3 className="text-lg font-medium">📄 Quick Import from Google Docs (Optional)</h3>
+              <p className="text-sm text-muted-foreground">
+                Have your CV in a Google Doc? Share it with "Anyone with the link" and paste the URL below to auto-fill your details.
+              </p>
+              <div className="flex gap-2">
+                <Input 
+                  placeholder="https://docs.google.com/document/d/..." 
+                  value={googleDocUrl} 
+                  onChange={(e) => setGoogleDocUrl(e.target.value)}
+                  className="flex-1"
+                />
+                <Button 
+                  type="button" 
+                  onClick={handleLoadFromGoogleDoc}
+                  disabled={isLoadingDoc}
+                  variant="outline"
+                >
+                  {isLoadingDoc ? 'Loading...' : 'Import'}
+                </Button>
+              </div>
+            </div>
+
+            {/* --- DeepSeek API Key (Optional) --- */}
+            <div className="space-y-4 bg-purple-50 dark:bg-purple-950/30 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+              <h3 className="text-lg font-medium">🤖 AI Enhancement (Optional)</h3>
+              <p className="text-sm text-muted-foreground">
+                Add your DeepSeek API key to automatically generate professional descriptions for GitHub projects without descriptions.
+              </p>
+              <div className="space-y-2">
+                <Label>DeepSeek API Key</Label>
+                <Input 
+                  type="password"
+                  placeholder="sk-..." 
+                  value={deepseekApiKey} 
+                  onChange={(e) => setDeepseekApiKey(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Get your API key from <a href="https://platform.deepseek.com/api_keys" target="_blank" className="text-blue-600 hover:underline">DeepSeek Platform</a>
+                </p>
+              </div>
+            </div>
+
             {/* --- Part 1: Basic Details Form --- */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium border-b pb-2">Personal Information</h3>
